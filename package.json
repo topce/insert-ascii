@@ -4,6 +4,10 @@
   "description": "Insert ascii character",
   "version": "0.0.1",
   "publisher": "topce",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https:/github.com/topce/insert-ascii"},
   "engines": {
     "vscode": "^1.96.2"
   },
