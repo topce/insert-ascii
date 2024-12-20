@@ -1,26 +1,41 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
+  const characters: vscode.QuickPickItem[] = [];
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "insert-ascii" is now active!');
+  for (let i = 33; i <= 255; i++) {
+    const char = String.fromCharCode(i);
+	if ( (i>=127 && i<=160) || (i===173)) {
+		continue;
+	}
+      characters.push({
+        label: i.toString(),
+        description: char,
+      });
+    }
+  
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	const disposable = vscode.commands.registerCommand('insert-ascii.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from insert-ascii!');
-	});
 
-	context.subscriptions.push(disposable);
+  let disposable = vscode.commands.registerCommand(
+    'insert-ascii.printable',
+    async () => {
+      let result = await vscode.window.showQuickPick(characters, {
+        canPickMany: false,
+      });
+
+      const editor = vscode.window.activeTextEditor;
+
+      if (editor && result !== undefined) {
+        const position = editor.selection.active;
+        editor.edit((editBuilder) => {
+          editBuilder.insert(position, result?.description ?? '');
+        });
+      }
+    }
+  );
+
+  context.subscriptions.push(disposable);
 }
 
-// This method is called when your extension is deactivated
+// this method is called when your extension is deactivated
 export function deactivate() {}
