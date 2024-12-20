@@ -1,9 +1,8 @@
 # Change Log
 
-All notable changes to the "insert-ascii" extension will be documented in this file.
+## 0.0.1
+Alt + A insert ascii character
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
-
-## [Unreleased]
-
-- Initial release
+## 0.0.2
+## 0.0.3
+add chat gpt generated logo.png 
