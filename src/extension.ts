@@ -27,18 +27,27 @@ export function activate(context: vscode.ExtensionContext) {
       });
 
       if (result !== undefined) {
-        // Copy to clipboard using helper
-        await setClipboardText(result.description ?? '');
+        const char = result.description ?? '';
 
-        // Try to insert into editor if possible
+        // Copy to clipboard using helper
+        await setClipboardText(char);
+
+        // Try to insert into active editor or terminal
         const editor = vscode.window.activeTextEditor;
         if (editor) {
+          // Insert into active text editor
           const position = editor.selection.active;
           editor.edit((editBuilder) => {
-            editBuilder.insert(position, result.description ?? '');
+            editBuilder.insert(position, char);
           });
         } else {
-          vscode.window.showInformationMessage('Character copied to clipboard. Paste it anywhere, including the terminal or search tab.');
+          // Check if terminal is focused and send character to it
+          const terminal = vscode.window.activeTerminal;
+          if (terminal) {
+            terminal.sendText(char, false);
+          } else {
+            vscode.window.showInformationMessage('Character copied to clipboard. Paste it anywhere, including the terminal or search tab.');
+          }
         }
       }
     }
