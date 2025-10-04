@@ -4,6 +4,23 @@ import { setClipboardText } from './clipboard';
 
 export function activate(context: vscode.ExtensionContext) {
   const characters: vscode.QuickPickItem[] = [];
+  let lastFocusedElement: 'terminal' | 'editor' | null = null;
+
+  // Track focus changes
+  vscode.window.onDidChangeActiveTerminal(() => {
+    lastFocusedElement = 'terminal';
+  });
+
+  vscode.window.onDidChangeActiveTextEditor(() => {
+    lastFocusedElement = 'editor';
+  });
+
+  // Initialize last focused element
+  if (vscode.window.activeTerminal) {
+    lastFocusedElement = 'terminal';
+  } else if (vscode.window.activeTextEditor) {
+    lastFocusedElement = 'editor';
+  }
 
   for (let i = 33; i <= 255; i++) {
     const char = String.fromCharCode(i);
@@ -29,24 +46,33 @@ export function activate(context: vscode.ExtensionContext) {
       if (result !== undefined) {
         const char = result.description ?? '';
 
-        // Copy to clipboard using helper
+        // Always copy to clipboard
         await setClipboardText(char);
+        vscode.window.showInformationMessage(`Character "${char}" inserted into ${lastFocusedElement}.`);
 
-        // Try to insert into active editor or terminal
-        const editor = vscode.window.activeTextEditor;
-        if (editor) {
-          // Insert into active text editor
+        // Insert into last focused element
+        if (lastFocusedElement === 'terminal' && vscode.window.activeTerminal) {
+          vscode.window.activeTerminal.sendText(char, false);
+        } else if (lastFocusedElement === 'editor' && vscode.window.activeTextEditor) {
+          const editor = vscode.window.activeTextEditor;
           const position = editor.selection.active;
           editor.edit((editBuilder) => {
             editBuilder.insert(position, char);
           });
         } else {
-          // Check if terminal is focused and send character to it
+          // Fallback: try current active elements
           const terminal = vscode.window.activeTerminal;
+          const editor = vscode.window.activeTextEditor;
+
           if (terminal) {
             terminal.sendText(char, false);
+          } else if (editor) {
+            const position = editor.selection.active;
+            editor.edit((editBuilder) => {
+              editBuilder.insert(position, char);
+            });
           } else {
-            vscode.window.showInformationMessage('Character copied to clipboard. Paste it anywhere, including the terminal or search tab.');
+            vscode.window.showInformationMessage('Character copied to clipboard. Paste it anywhere, including the terminal or editor.');
           }
         }
       }
