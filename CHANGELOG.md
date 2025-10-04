@@ -13,3 +13,6 @@ add chat gpt generated logo.png
 - Improved and expanded unit tests
 - Updated dev dependencies for compatibility
 - Fixed lint warnings and TypeScript errors
+
+## 1.0.1
+- Add otpion to insert to terminal or editor always copy to clipboard
